@@ -74,12 +74,15 @@ setopt HIST_BEEP                 # Beep when accessing nonexistent history.
 
 autoload -U +X bashcompinit && bashcompinit
 
-if command -v kubectl &> /dev/null
-then
+if command -v kubectl &> /dev/null; then
     source <(kubectl completion zsh)
 fi
-if command -v git-lfs &> /dev/null
-then
+if command -v git-lfs &> /dev/null; then
     source <(git-lfs completion zsh)
 fi
+if command -v helm &> /dev/null; then
+    source <(helm completion zsh)
+fi
+
+
 # sudo usermod --shell /bin/zsh vagrant
