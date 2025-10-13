@@ -61,6 +61,9 @@ DEPLOYMENT_ENVIRONMENT_NAME="${1}"
 GENKEY_TOKEN="${2}"
 EOF
 
+if [ -f /etc/otelcol-contrib/config.yaml ]; then
+  mv -v /etc/otelcol-contrib/config.yaml /etc/otelcol-contrib/config.yaml.$(date +"%Y%m%d_%H%M%S")
+fi
 curl -C - -L https://raw.githubusercontent.com/genkeydev/goodies/refs/heads/main/otel/linux-native.conf -o /etc/otelcol-contrib/config.yaml
 
 systemctl daemon-reload
