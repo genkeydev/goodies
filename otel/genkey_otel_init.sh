@@ -36,14 +36,14 @@ function disable_if_exists() {
 disable_if_exists "opentelemetry-collector.service"
 disable_if_exists "otelcol-contrib.service"
 
-readonly des="otelcol-contrib-0.136.0-1.x86_64"
+readonly des="otelcol-contrib-0.137.0-1.x86_64"
 if rpm -q "${des}" >/dev/null; then
   echo "INFO: package is installed with the correct version ${des}"
 else
   echo "WARN: removing simular packages if exists"
   rpm -qa --queryformat '%{NAME}\n' | grep -E "^(otelcol|opentelemetry-collector).*" | xargs -r rpm -veh
-  curl -C -  --output-dir /tmp/ -OL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.136.0/otelcol-contrib_0.136.0_linux_amd64.rpm
-  rpm -ivh /tmp/otelcol-contrib_0.136.0_linux_amd64.rpm
+  curl -C -  --output-dir /tmp/ -OL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.137.0/otelcol-contrib_0.137.0_linux_amd64.rpm
+  rpm -ivh /tmp/otelcol-contrib_0.137.0_linux_amd64.rpm
   disable_if_exists "otelcol-contrib.service"
 fi
 
