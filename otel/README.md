@@ -6,7 +6,7 @@
 - installed cert authorities, **the site does not force to install self sign cert for security reason**  
   Access to https://observation.genkey.com/ do require tls.
 - ENV: all site should identify itself with at least `deployment.environment.name`
-- TOKEN: to use https://observation.genkey.com:44317 and 4318 require a token
+- TOKEN: to use https://observation.genkey.com:4317 and 4318 require a token
 
 # run from github
 
