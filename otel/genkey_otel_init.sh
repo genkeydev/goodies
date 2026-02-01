@@ -9,7 +9,7 @@ if [ ! "$(id -u)" -eq 0 ]; then
   exit 1
 fi
 
-if [[ ! "${1:-}" =~ ^[a-z][a-z,0-9,-]{0,61}[a-z,0-9]$ ]]; then
+if [[ ! "${1:-}" =~ ^[a-z][a-z,0-9,-\.]{0,61}[a-z,0-9]$ ]]; then
   echo "FAIL: Invalid DEPLOYMENT_ENVIRONMENT_NAME, arg1: (${1})"
   echo "FAIL: The DEPLOYMENT_ENVIRONMENT_NAME should be: ^[a-z][a-z,0-9,-]{0,61}[a-z,0-9]$"
   exit 1
@@ -36,14 +36,16 @@ function disable_if_exists() {
 disable_if_exists "opentelemetry-collector.service"
 disable_if_exists "otelcol-contrib.service"
 
-readonly des="otelcol-contrib-0.137.0-1.x86_64"
+readonly otel_ver="0.144.0"
+readonly des="otelcol-contrib-${otel_ver}-1.x86_64"
 if rpm -q "${des}" >/dev/null; then
   echo "INFO: package is installed with the correct version ${des}"
 else
   echo "WARN: removing simular packages if exists"
   rpm -qa --queryformat '%{NAME}\n' | grep -E "^(otelcol|opentelemetry-collector).*" | xargs -r rpm -veh
-  curl -C -  --output-dir /tmp/ -OL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.137.0/otelcol-contrib_0.137.0_linux_amd64.rpm
-  rpm -ivh /tmp/otelcol-contrib_0.137.0_linux_amd64.rpm
+  readonly rpm_file="otelcol-contrib_${otel_ver}_linux_amd64.rpm"
+  curl -C -  --output-dir /tmp/ -OL "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${otel_ver}/${rpm_file}"
+  rpm -ivh "/tmp/${rpm_file}"
   disable_if_exists "otelcol-contrib.service"
 fi
 
@@ -62,7 +64,7 @@ GENKEY_TOKEN="${2}"
 EOF
 
 if [ -f /etc/otelcol-contrib/config.yaml ]; then
-  mv -v /etc/otelcol-contrib/config.yaml /etc/otelcol-contrib/config.yaml.$(date +"%Y%m%d_%H%M%S")
+  mv -v /etc/otelcol-contrib/config.yaml "/etc/otelcol-contrib/config.yaml.$(date +'%Y%m%d_%H%M%S')"
 fi
 curl -C - -L https://raw.githubusercontent.com/genkeydev/goodies/refs/heads/main/otel/linux-native.conf -o /etc/otelcol-contrib/config.yaml
 
