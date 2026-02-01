@@ -96,4 +96,5 @@ service:
       exporters: [ otlp_grpc ]
   telemetry:
     metrics:
-      level: detailed
+      level: none
+      readers: []
