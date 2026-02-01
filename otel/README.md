@@ -12,8 +12,9 @@
 
 ```shell
 curl -sfL https://raw.githubusercontent.com/genkeydev/goodies/refs/heads/main/otel/genkey_otel_init.sh -o - | tee /tmp/genkey_otel_init.sh
-chmod +x /tmp/genkey_otel_init.sh
-sudo /tmp/genkey_otel_init.sh <ENV> <TOKEN>
+sudo bash /tmp/genkey_otel_init.sh <ENV> <TOKEN>
+# or to use different config
+sudo env GENKEY_OTEL_CONFIG_NAME=linux-native-metric.yaml bash -x /tmp/genkey_otel_init.sh <ENV> <TOKEN>
 
 # verify the setup
 journalctl -u otelcol-contrib.service -f
