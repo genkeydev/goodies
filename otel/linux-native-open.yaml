@@ -1,4 +1,15 @@
+extensions:
+  bearertokenauth/genkey_observation_client:
+    filename: ./.bearertokenauth_genkey_observation_client.txt
+
 receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
   hostmetrics:
     collection_interval: 10s
     scrapers:
@@ -53,11 +64,10 @@ receivers:
 exporters:
   debug/verbosity:
     verbosity: detailed
-  otlp_grpc:
+  otlp_grpc/genkey_observation:
     endpoint: "https://observation.genkey.com:4317"
-    headers:
-      authorization: "Bearer ${env:GENKEY_TOKEN}"
-
+    auth:
+      authenticator: bearertokenauth/genkey_observation_client
 processors:
   resource:
     attributes:
@@ -65,7 +75,7 @@ processors:
         value: "${env:DEPLOYMENT_ENVIRONMENT_NAME}"
         action: insert
       - key: service.namespace
-        value: linux-native-metric
+        value: linux-native
         action: insert
       - key: service.name
         value: opentelemetry-collector
@@ -76,9 +86,9 @@ processors:
     spike_limit_percentage: 25
   batch:
   resourcedetection:
-    detectors: ["system"]
+    detectors: [ "system" ]
     system:
-      hostname_sources: ["os"]
+      hostname_sources: [ "os" ]
       resource_attributes:
         host.name:
           enabled: true
@@ -89,12 +99,25 @@ processors:
           - set(datapoint.attributes["host.name"], resource.attributes["host.name"])
 
 service:
+  extensions: [ bearertokenauth/genkey_observation_client ]
   pipelines:
     metrics:
       receivers: [ hostmetrics, hostmetrics/disk ]
       processors: [ memory_limiter, batch, resourcedetection, transform, resource ]
-      exporters: [ otlp_grpc ]
+      exporters: [ otlp_grpc/genkey_observation  ]
+    metrics/otlp:
+      receivers: [ otlp ]
+      processors: [ memory_limiter, batch ]
+      exporters: [ otlp_grpc/genkey_observation ]
+    logs/otlp:
+      receivers: [ otlp ]
+      processors: [ memory_limiter, batch ]
+      exporters: [ otlp_grpc/genkey_observation ]
+    traces/otlp:
+      receivers: [ otlp ]
+      processors: [ memory_limiter, batch ]
+      exporters: [ otlp_grpc/genkey_observation ]
   telemetry:
     metrics:
       level: none
-      readers: []
+      readers: [ ]

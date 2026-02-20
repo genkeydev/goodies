@@ -1,11 +1,8 @@
-receivers:
-  otlp:
-    protocols:
-      grpc:
-        endpoint: 127.0.0.1:4317
-      http:
-        endpoint: 127.0.0.1:4318
+extensions:
+  bearertokenauth/genkey_observation_client:
+    filename: /etc/otelcol-contrib/.bearertokenauth_genkey_observation_client.txt
 
+receivers:
   hostmetrics:
     collection_interval: 10s
     scrapers:
@@ -60,11 +57,10 @@ receivers:
 exporters:
   debug/verbosity:
     verbosity: detailed
-  otlp_grpc:
+  otlp_grpc/genkey_observation:
     endpoint: "https://observation.genkey.com:4317"
-    headers:
-      authorization: "Bearer ${env:GENKEY_TOKEN}"
-
+    auth:
+      authenticator: bearertokenauth/genkey_observation_client
 processors:
   resource:
     attributes:
@@ -83,9 +79,9 @@ processors:
     spike_limit_percentage: 25
   batch:
   resourcedetection:
-    detectors: ["system"]
+    detectors: [ "system" ]
     system:
-      hostname_sources: ["os"]
+      hostname_sources: [ "os" ]
       resource_attributes:
         host.name:
           enabled: true
@@ -96,20 +92,13 @@ processors:
           - set(datapoint.attributes["host.name"], resource.attributes["host.name"])
 
 service:
+  extensions: [ bearertokenauth/genkey_observation_client ]
   pipelines:
     metrics:
-      receivers: [ otlp, hostmetrics, hostmetrics/disk ]
+      receivers: [ hostmetrics, hostmetrics/disk ]
       processors: [ memory_limiter, batch, resourcedetection, transform, resource ]
-      exporters: [ otlp_grpc ]
-    logs:
-      receivers: [ otlp ]
-      processors: [ memory_limiter, batch, resourcedetection, resource  ]
-      exporters: [ otlp_grpc ]
-    traces:
-      receivers: [ otlp ]
-      processors: [ memory_limiter, batch, resourcedetection, resource  ]
-      exporters: [ otlp_grpc ]
+      exporters: [ otlp_grpc/genkey_observation  ]
   telemetry:
     metrics:
       level: none
-      readers: []
+      readers: [ ]

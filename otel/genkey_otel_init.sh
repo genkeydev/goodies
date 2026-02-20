@@ -23,10 +23,8 @@ elif [ "$#" -eq 2 ]; then
     echo "FAIL: The GENKEY_TOKEN should be: ^[a-zA-Z0-9]{8,61}$"
     exit 1
   fi
-  cat << EOF | tee /etc/otelcol-contrib/.env
-  DEPLOYMENT_ENVIRONMENT_NAME="${1}"
-  GENKEY_TOKEN="${2}"
-EOF
+  echo "${2}" > /etc/otelcol-contrib/.bearertokenauth_genkey_observation_client.txt
+  echo "DEPLOYMENT_ENVIRONMENT_NAME=\"${1}\"" | tee /etc/otelcol-contrib/.env
 fi
 
 function disable_if_exists() {
