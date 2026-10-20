@@ -83,6 +83,7 @@ fi
 if command -v helm &> /dev/null; then
     source <(helm completion zsh)
 fi
+if command -v kubectl-cnpg &> /dev/null; then
+    source <(kubectl-cnpg completion zsh)
+fi
 
-
-# sudo usermod --shell /bin/zsh vagrant
