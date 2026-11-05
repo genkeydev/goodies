@@ -2,7 +2,7 @@ autoload -U compinit promptinit
 compinit
 promptinit
 
-prompt adam1
+prompt adam1 bg-default
 
 zstyle ':completion:*' menu select
 
